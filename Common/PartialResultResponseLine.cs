@@ -7,13 +7,14 @@ namespace TL1Client.Common
     {
         // Format:
         // ^^^"<AID>:ERCDE=<value>[,<keyword>=<value>,....<keyword>=<value>]" cr lf +
-        const string PARTIAL_RESULT_DESCIPTION_LINE_REGEX = @"^   ""(?<aid>[a-zA-Z0-9_]+):(?:(?<key>[a-zA-Z0-9_]+)=(?<value>[^\s,]+))(?:,(?:(?<key>[a-zA-Z0-9_]+)=(?<value>[^\s,]+)))*""$";
+        const string PARTIAL_RESULT_DESCIPTION_LINE_REGEX = @"^   ""(?<aid>[a-zA-Z0-9_]+):(?:(?<key>[^;]+)=(?<value>[^\s,]+))(?:,(?:(?<key>[a-zA-Z0-9_]+)=(?<value>[^\s,]+)))*""$";
         static readonly Regex PartialResultDescriptionLineRegex = new Regex(PARTIAL_RESULT_DESCIPTION_LINE_REGEX, RegexOptions.Compiled);
 
         public string AccessID { get; }
 
         public PartialResultResponseLine(int lineIndex, string aid, IReadOnlyDictionary<string, string> headers, string rawLine) : base(lineIndex, headers, rawLine)
         {
+            AccessID = aid;
         }
 
         public static PartialResultResponseLine ParseIfMatches(string line, int i)
