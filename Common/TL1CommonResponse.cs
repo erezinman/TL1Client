@@ -8,10 +8,11 @@ namespace TL1Client.Common
     class TL1CommonResponse : TL1Response
     {
         const string ERROR_CODE_REGEX = @"^   (?<errcode>\w+)$";
-        const string ERROR_VARIALES_REGEX = @"^   ""(?<errvars>[^;])""$";
+        // "\v" allows for anything escaped.
+        const string ERROR_VARIALES_REGEX = @"^   ""(?<errvars>[\v])""$";
 
         static readonly Regex ErrorCodeRegex = new Regex(ERROR_CODE_REGEX, RegexOptions.Compiled);
-        static readonly Regex ErrorVariablesRegex = new Regex(ERROR_VARIALES_REGEX, RegexOptions.Compiled);
+        static readonly Regex ErrorVariablesRegex = new Regex(ERROR_VARIALES_REGEX.Replace("\v", Utils.GetEscapableWordRegex()), RegexOptions.Compiled);
 
         public string ErrorCode { get; private set; }
 
@@ -63,7 +64,7 @@ namespace TL1Client.Common
                             }
                             break;
                         default:
-                            var line = CommentResponseLine.ParseIfMatches(i - 2, en); // Expecting only comments by now.
+                            var line = CommentResponseLine.ParseIfMatches(en, i - 2); // Expecting only comments by now.
                             if (line != null)
                                 lines.Add(line);
                             else
@@ -88,7 +89,7 @@ namespace TL1Client.Common
                 while (en.MoveNext())
                 {
                     var line = (TL1DataLine) PartialResultResponseLine.ParseIfMatches(en.Current, i)
-                               ?? CommentResponseLine.ParseIfMatches(i, en);
+                               ?? CommentResponseLine.ParseIfMatches(en, i);
                     if (line == null)
                     {
                         throw new FormatException($"Unexpected line format when parsing the 'PRTL' response. Line is \"{en.Current}\".");
@@ -111,7 +112,7 @@ namespace TL1Client.Common
             using (var en = rawLines.GetEnumerator())
                 while (en.MoveNext())
                 {
-                    lines.Add(CommentResponseLine.ParseIfMatches(lines.Count, en) ?? new TL1DataLine(lines.Count, en.Current));
+                    lines.Add(CommentResponseLine.ParseIfMatches(en, lines.Count) ?? new TL1DataLine(lines.Count, en.Current));
                 }
 
             return lines;

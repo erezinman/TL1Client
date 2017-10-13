@@ -9,9 +9,9 @@ namespace TL1Client.Common
 {
     public class CommentResponseLine : TL1DataLine
     {
-        // Comment Format: ^^^/* <free-text-incl-new-lines> */ cr lf
+        // Comment Format: ^^^/* <free-text-including-new-lines> */ cr lf
         const string COMMENT_START_REGEX = @"^   /\*";
-        const string COMMENT_END_REGEX = @".+\*/$";
+        const string COMMENT_END_REGEX = @".*\*/$";
         static readonly Regex CommenStartRegex = new Regex(COMMENT_START_REGEX, RegexOptions.Compiled);
         static readonly Regex CommentEndRegex = new Regex(COMMENT_END_REGEX, RegexOptions.Compiled);
 
@@ -22,7 +22,7 @@ namespace TL1Client.Common
             Comment = comment;
         }
 
-        public static CommentResponseLine ParseIfMatches(int i, IEnumerator<string> en)
+        public static CommentResponseLine ParseIfMatches(IEnumerator<string> en, int i)
         {
             var match = CommenStartRegex.Match(en.Current);
             if (match.Success)
@@ -40,7 +40,7 @@ namespace TL1Client.Common
 
                 sb.Append(en.Current);
 
-                return new CommentResponseLine(i, sb.ToString(4, sb.Length - 2), sb.ToString());
+                return new CommentResponseLine(i, sb.ToString(5, sb.Length - 7), sb.ToString());
             }
             return null;
         }

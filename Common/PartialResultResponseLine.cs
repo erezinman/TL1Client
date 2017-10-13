@@ -7,8 +7,12 @@ namespace TL1Client.Common
     {
         // Format:
         // ^^^"<AID>:ERCDE=<value>[,<keyword>=<value>,....<keyword>=<value>]" cr lf +
-        const string PARTIAL_RESULT_DESCIPTION_LINE_REGEX = @"^   ""(?<aid>[a-zA-Z0-9_]+):(?:(?<key>[^;]+)=(?<value>[^\s,]+))(?:,(?:(?<key>[a-zA-Z0-9_]+)=(?<value>[^\s,]+)))*""$";
-        static readonly Regex PartialResultDescriptionLineRegex = new Regex(PARTIAL_RESULT_DESCIPTION_LINE_REGEX, RegexOptions.Compiled);
+        // "\v" are replaced by the regular expressions for values, and "\k" are replaced by the regular expressions for keys.
+        const string PARTIAL_RESULT_DESCIPTION_LINE_REGEX = @"^   ""(?<aid>[a-zA-Z0-9_]+):(?:(?<key>\v)=(?<value>\v))(?:,(?:(?<key>\v)=(?<value>\v)))*""$";
+
+        private static readonly Regex PartialResultDescriptionLineRegex = new Regex(PARTIAL_RESULT_DESCIPTION_LINE_REGEX
+            .Replace(@"\v", Utils.GetEscapableWordRegex(@"\""=,"))
+            .Replace(@"\k", Utils.GetEscapableWordRegex(@"\""=,", allowEmptyWord: false)), RegexOptions.Compiled);
 
         public string AccessID { get; }
 

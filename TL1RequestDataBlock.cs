@@ -30,7 +30,6 @@ namespace TL1Client
         /// </summary>
         public List<string> Parameters { get; }
 
-
         #region Overrides of TL1RequestDataBlock
 
         public override string GetBlockString()
